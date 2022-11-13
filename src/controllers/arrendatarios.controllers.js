@@ -8,15 +8,25 @@ const getArrendatarios  = async (req , res ) => {
 }
 
 const postArrendatarios = async (req , res ) => {
+  let errors = {}
   const id = uniqid().toUpperCase()
   const { nombre, apellidos , correo , telefono } = req.body
   const [ resultArrendatarios ] = await pool.query(
     'INSERT INTO ARRENDATARIO (ID_ARRENDATARIO, NOMBRE , APELLIDOS , CORREO , TELEFONO ) VALUES (?, ?, ? ,?, ?)' , 
     [id ,nombre , apellidos , correo , telefono]
   )
-
-  if(resultArrendatarios.affectedRows < 0)
-  res.send(resultArrendatarios)
+  
+  if(resultArrendatarios.affectedRows = 0) {
+    errors = {
+      code: 'INVALID INSERT ',
+      message: 'Invalid or missing data for insert'
+    }
+  }
+  errors = {
+    code: null,
+    message: 'Insert successfully'
+  }
+  res.send(errors)
 }
 
 const deleteArrendatarios = async (req , res ) => {
