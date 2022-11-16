@@ -4,7 +4,7 @@ import uniqid from 'uniqid'
 const getArriendos  = async (req , res ) => {
   let errors = {}
   const [ resultArrendatarios ] = 
-  await pool.query("SELECT A.ID_ARRIENDO , A.FECHA , A.HORA , A.CANCHA , CONCAT(AR.NOMBRE , ' ' , AR.APELLIDOS) AS NOMBRE , AR.TELEFONO FROM Canchas.ARRIENDO A JOIN Canchas.ARRENDATARIO AR ON A.ID_ARRENDATARIO = AR.ID_ARRENDATARIO ")
+  await pool.query("SELECT A.ID_ARRIENDO , A.FECHA , A.HORA , A.CANCHA , CONCAT(AR.NOMBRE , ' ' , AR.APELLIDOS) AS NOMBRE , AR.TELEFONO FROM ARRIENDO A JOIN ARRENDATARIO AR ON A.ID_ARRENDATARIO = AR.ID_ARRENDATARIO ")
 
   console.log(resultArrendatarios)
   if(resultArrendatarios.length > 0) {
