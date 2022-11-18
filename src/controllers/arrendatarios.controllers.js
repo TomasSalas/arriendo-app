@@ -10,10 +10,10 @@ const getArrendatarios  = async (req , res ) => {
 const postArrendatarios = async (req , res ) => {
   let errors = {}
   const id = uniqid().toUpperCase()
-  const { nombre, apellidos , correo , telefono } = req.body
+  const { nombre, apellidos , rut , correo , telefono } = req.body
   const [ resultArrendatarios ] = await pool.query(
-    'INSERT INTO ARRENDATARIO (ID_ARRENDATARIO, NOMBRE , APELLIDOS , CORREO , TELEFONO ) VALUES (?, ?, ? ,?, ?)' , 
-    [id ,nombre , apellidos , correo , telefono]
+    'INSERT INTO ARRENDATARIO (ID_ARRENDATARIO, NOMBRE , APELLIDOS , RUT, CORREO , TELEFONO ) VALUES (?, ?, ? ,?, ?)' , 
+    [id ,nombre , apellidos , rut , correo , telefono]
   )
   
   if(resultArrendatarios.affectedRows = 0) {

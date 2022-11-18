@@ -18,8 +18,6 @@ const getArriendos  = async (req , res ) => {
       message: 'ERROR IN QUERY OR QUERY EMPTY'
     }
   }
-
-
   res.send(errors)
 }
 
