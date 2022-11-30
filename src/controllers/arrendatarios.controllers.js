@@ -1,66 +1,98 @@
 import { pool } from '../db.js'
 import uniqid from 'uniqid'
+import SQL from '../SQL/index.js'
 
+const getArrendatarios = async (req, res) => {
+  let params = {
+    table: "ARRENDATARIO"
+  }
+  const resultArrendatarios = await SQL.select(params)
 
-const getArrendatarios  = async (req , res ) => {
-  const [ resultArrendatarios ] = await pool.query('SELECT * FROM ARRENDATARIO')
   res.json(resultArrendatarios)
 }
 
-const postArrendatarios = async (req , res ) => {
+const postArrendatarios = async (req, res) => {
   let errors = {}
+  let params = {}
   const id = uniqid().toUpperCase()
-  const { nombre, apellidos , rut , correo , telefono } = req.body
-  const [ resultArrendatarios ] = await pool.query(
-    'INSERT INTO ARRENDATARIO (ID_ARRENDATARIO, NOMBRE , APELLIDOS , RUT, CORREO , TELEFONO ) VALUES (?, ?, ? ,?, ?)' , 
-    [id ,nombre , apellidos , rut , correo , telefono]
-  )
+  const estado = 'ACTIVO'
+
+  const { nombre, apellidos, rut, correo, telefono } = req.body
+  params = {
+    table: 'ARRENDATARIO',
+    condicion: `RUT = '${rut}'`,
+  }
+
+  const resultExistsArrendatarios = await SQL.queryselectWhere(params)
+  if(!resultExistsArrendatarios){
+    params = {
+      table: 'ARRENDATARIO',
+      id,
+      nombre,
+      apellidos,
+      rut,
+      correo,
+      telefono,
+      estado
+    }
   
-  if(resultArrendatarios.affectedRows = 0) {
+    const resultArrendatarios = await SQL.insertItems(params)
+  
+    if (resultArrendatarios.affectedRows = 0) {
+      errors = {
+        code: 'INVALID INSERT ',
+        message: 'Invalid or missing data for insert'
+      }
+    }
     errors = {
-      code: 'INVALID INSERT ',
-      message: 'Invalid or missing data for insert'
+      code: null,
+      message: 'Insert successfully'
+    }
+  }else{
+    errors = {
+      code: 'USER_EXISTS',
+      message: 'This user already exists'
     }
   }
-  errors = {
-    code: null,
-    message: 'Insert successfully'
-  }
+  
   res.send(errors)
 }
 
-const deleteArrendatarios = async (req , res ) => {
+const deleteArrendatarios = async (req, res) => {
   let errors = {}
-  const [queryIDarrendatario] = await pool.query('SELECT * FROM ARRENDATARIO WHERE ID_ARRENDATARIO = ?' , [req.params.ID_ARRENDATARIO])
-  if(queryIDarrendatario.length == 0){
-    errors = {
-      code: 'INVALID ID_ARRENDATARIO',
-      message: 'Invalid or missing ID_ARRENDATARIO'
-    }
-  }
+  let id = req.params.id
+  let params = {}
 
-  const [ resultDeletedArriendos ] = await pool.query('DELETE FROM ARRIENDO WHERE ID_ARRENDATARIO = ?' , [req.params.ID_ARRENDATARIO])
-  if (resultDeletedArriendos.affectedRows = 0) {
-    errors = {
-      code: 'ERROR_DELETED_ARRIENDOS',
-      message: 'error removing leases'
-    }
+  params = {
+    table: 'ARRENDATARIO',
+    condicion: `ID_ARRENDATARIO = '${id}' AND ESTADO = 'ELIMINADO'`
   }
+  const resultExistsArrendatarios = await SQL.queryselectWhere(params)
+  let arregloResponse = resultExistsArrendatarios.length
 
-  const [resultDeleted] = await pool.query('DELETE FROM ARRENDATARIO WHERE ID_ARRENDATARIO = ?' , [req.params.ID_ARRENDATARIO])
-  if (resultDeleted.affectedRows = 0) {
-    errors = {
-      code: 'ERROR_DELETED_ARRENDATARIO',
-      message: 'error removing tenant'
+  if(arregloResponse === 0){
+    params = {
+      table: 'ARRENDATARIO',
+      set: `ESTADO = 'ELIMINADO'`,
+      condicion: `ID_ARRENDATARIO = '${id}'`
     }
-  }
 
-  errors = {
-    code: null,
-    message: 'Deleted successfully'
+    const updateArrendatario = await SQL.updateItem(params)
+
+    if(updateArrendatario.affectedRows > 0){
+      errors = {
+        code: 'USER_DELETED',
+        message: 'This user is DELETED'
+      }
+    }
+  } else {
+    errors = {
+      code: 'USER_NOT_EXISTS_OR_STATUS_DELETED',
+      message: 'This user not exists or status is not deleted'
+    }
   }
 
   res.send(errors)
 }
 
-export default { getArrendatarios , postArrendatarios , deleteArrendatarios } 
+export default { getArrendatarios, postArrendatarios, deleteArrendatarios } 

@@ -10,6 +10,6 @@ router.put('/arrendatarios' , (req, res) => {
   res.send('Actualizar Arrendatarios')
 })
 
-router.delete('/arrendatarios/:ID_ARRENDATARIO' , controllerArrendatarios.deleteArrendatarios)
+router.post('/arrendatarios/:id' , controllerArrendatarios.deleteArrendatarios)
 
 export default router
